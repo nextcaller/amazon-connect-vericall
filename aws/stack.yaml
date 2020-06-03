@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Next Caller VeriCall Lambda Function for Amazon Connect
+
+Parameters:
+  LogLevel:
+    Type: String
+    Description: Lambda function log level.
+    AllowedValues: ["INFO", "DEBUG", "WARN", "CRITICAL", "ERROR"]
+    Default: "INFO"
+  LogRetentionInDays:
+    Type: Number
+    Description: Number of days to retain the CloudWatch logs
+    Default: 3
+  ApiHost:
+    Type: String
+    Description: VeriCall API Endpoint
+    Default: "api-pre.vc.nextcaller.com"
+  APIUsername:
+    Type: String
+    Description: Username for Next Caller's VeriCall API
+  APIPassword:
+    Type: String
+    Description: Password for Next Caller's VeriCall API
+    NoEcho: true
+
+Globals:
+  Function:
+    Runtime: python3.7
+    Tracing: Active
+
+
+Resources:
+  FunctionLog:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Function}"
+      RetentionInDays: !Ref LogRetentionInDays
+
+
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: |
+        Use Next Caller's VeriCall API to obtain a risk score for a call.
+      Handler: main.handler
+      CodeUri: ../src/
+      MemorySize: 128
+      Timeout: 7
+      Policies:
+        - AWSLambdaExecute
+      Environment:
+        Variables:
+          API_ENDPOINT: !Ref ApiHost
+          USERNAME: !Ref APIUsername
+          PASSWORD: !Ref APIPassword
+          POWERTOOLS_LOGGER_LOG_EVENT: "true"
+          LOG_LEVEL: !Ref LogLevel

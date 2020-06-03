@@ -1,0 +1,8 @@
+*.egg-info/
+.coverage
+.pytest_cache*
+.python-version
+build/*
+htmlcov/*
+tasks.py
+ve/*
