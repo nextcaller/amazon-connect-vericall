@@ -27,6 +27,7 @@ def handler(event, context):
         "From": parameters.get("From", None),
         "P-Asserted-Identity": parameters.get("P-Asserted-Identity", None),
         "To": parameters.get("To", None),
+        "X-Info-Dig": parameters.get("I-SUP-OLI", None),
     }
     meta = {"ContactId": contact_id}
     ani = contact_data["CustomerEndpoint"]["Address"]
