@@ -23,7 +23,7 @@ Use `sam` to build, invoke and deploy the function.
 `sam build -b build -t aws/stack.yaml --use-container`
 
 ##### SAM Invoke:
-There is sample event in the [example_event](example_event/) folder.
+There is a sample event in the [example_event](example_event/) folder.
 
 `sam local invoke -t build/template.yaml -e example_events/sample_score.json --parameter-overrides ParameterKey=LogLevel,ParameterValue=INFO ParameterKey=APIUsername,ParameterValue=REPLACE_ME ParameterKey=APIPassword,ParameterValue=REPLACE_ME`
 
