@@ -12,7 +12,7 @@ Parameters:
     Type: Number
     Description: Number of days to retain the CloudWatch logs
     Default: 3
-  ApiHost:
+  APIHost:
     Type: String
     Description: VeriCall API Endpoint
     Default: "api-pre.vc.nextcaller.com"
@@ -51,7 +51,7 @@ Resources:
         - AWSLambdaExecute
       Environment:
         Variables:
-          API_ENDPOINT: !Ref ApiHost
+          API_ENDPOINT: !Ref APIHost
           USERNAME: !Ref APIUsername
           PASSWORD: !Ref APIPassword
           POWERTOOLS_LOGGER_LOG_EVENT: "true"
