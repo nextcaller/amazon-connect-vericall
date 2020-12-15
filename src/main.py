@@ -23,18 +23,19 @@ def handler(event, context):
 
     contact_id = contact_data["ContactId"]
     sip_data = {
+        "P-Asserted-Identity": parameters.get("P-Asserted-Identity", None),
         "P-Charge-Info": parameters.get("P-Charge-Info", None),
         "From": parameters.get("From", None),
-        "P-Asserted-Identity": parameters.get("P-Asserted-Identity", None),
         "To": parameters.get("To", None),
         "X-Info-Dig": parameters.get("I-SUP-OLI", None),
     }
+
     meta = {"ContactId": contact_id}
     ani = contact_data["CustomerEndpoint"]["Address"]
     dnis = contact_data["SystemEndpoint"]["Address"]
 
     payload = {"ani": ani, "dnis": dnis, "headers": sip_data, "meta": meta}
-    logger.info(f"ContactId: contact_id")
+    logger.info(f"ContactId: {contact_id}")
     data = vericall.score(VeriCall, payload)
 
     # https://docs.aws.amazon.com/connect/latest/adminguide/connect-lambda-functions.html
