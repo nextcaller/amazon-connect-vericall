@@ -47,6 +47,9 @@ def handler(event, context):
     if "reason_codes" in data:
         reason_codes = data.pop("reason_codes")
         data["reason_codes"] = "|".join(reason_codes)
+    if "reputation_categories" in data:
+        reputation_categories = data.pop("reputation_categories")
+        data["reputation_categories"] = "|".join(reputation_categories)
     data["data_source"] = "vericall"
 
     return data
