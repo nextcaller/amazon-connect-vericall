@@ -23,18 +23,19 @@ def handler(event, context):
 
     contact_id = contact_data["ContactId"]
     sip_data = {
-        "P-Charge-Info": parameters.get("P-Charge-Info", None),
-        "From": parameters.get("From", None),
-        "P-Asserted-Identity": parameters.get("P-Asserted-Identity", None),
-        "To": parameters.get("To", None),
-        "X-Info-Dig": parameters.get("I-SUP-OLI", None),
+        "P-Asserted-Identity": parameters.get("P-Asserted-Identity") or None,
+        "P-Charge-Info": parameters.get("P-Charge-Info") or None,
+        "From": parameters.get("From") or None,
+        "To": parameters.get("To") or None,
+        "X-Info-Dig": parameters.get("I-SUP-OLI") or None,
     }
+
     meta = {"ContactId": contact_id}
     ani = contact_data["CustomerEndpoint"]["Address"]
     dnis = contact_data["SystemEndpoint"]["Address"]
 
     payload = {"ani": ani, "dnis": dnis, "headers": sip_data, "meta": meta}
-    logger.info(f"ContactId: contact_id")
+    logger.info(f"ContactId: {contact_id}")
     data = vericall.score(VeriCall, payload)
 
     # https://docs.aws.amazon.com/connect/latest/adminguide/connect-lambda-functions.html
@@ -46,6 +47,9 @@ def handler(event, context):
     if "reason_codes" in data:
         reason_codes = data.pop("reason_codes")
         data["reason_codes"] = "|".join(reason_codes)
+    if "reputation_categories" in data:
+        reputation_categories = data.pop("reputation_categories")
+        data["reputation_categories"] = "|".join(reputation_categories)
     data["data_source"] = "vericall"
 
     return data

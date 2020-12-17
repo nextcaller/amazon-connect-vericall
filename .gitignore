@@ -6,3 +6,4 @@ build/*
 htmlcov/*
 tasks.py
 ve/*
+build.toml
