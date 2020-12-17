@@ -23,11 +23,11 @@ def handler(event, context):
 
     contact_id = contact_data["ContactId"]
     sip_data = {
-        "P-Asserted-Identity": parameters.get("P-Asserted-Identity", None),
-        "P-Charge-Info": parameters.get("P-Charge-Info", None),
-        "From": parameters.get("From", None),
-        "To": parameters.get("To", None),
-        "X-Info-Dig": parameters.get("I-SUP-OLI", None),
+        "P-Asserted-Identity": parameters.get("P-Asserted-Identity") or None,
+        "P-Charge-Info": parameters.get("P-Charge-Info") or None,
+        "From": parameters.get("From") or None,
+        "To": parameters.get("To") or None,
+        "X-Info-Dig": parameters.get("I-SUP-OLI") or None,
     }
 
     meta = {"ContactId": contact_id}
