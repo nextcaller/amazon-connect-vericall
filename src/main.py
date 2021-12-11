@@ -27,7 +27,14 @@ def handler(event, context):
         "P-Charge-Info": parameters.get("P-Charge-Info") or None,
         "From": parameters.get("From") or None,
         "To": parameters.get("To") or None,
-        "X-Info-Dig": parameters.get("I-SUP-OLI") or None,
+        "X-INFO-DIG": parameters.get("I-SUP-OLI") or None,
+        "X-JIP": parameters.get("JIP") or None,
+        "X-HOP-CNT": parameters.get("Hop-Counter") or None,
+        "X-ORIG-SW": parameters.get("Originating-Switch") or None,
+        "X-ORIG-TRK": parameters.get("Originating-Trunk") or None,
+        "X-CALL-FWD-I": parameters.get("Call-Forwarding-Indicator") or None,
+        "X-ORIG-CGPN": parameters.get("Calling-Party-Address") or None,
+        "X-ORIG-CDPN": parameters.get("Called-Party-Address") or None,
     }
 
     meta = {"ContactId": contact_id}
