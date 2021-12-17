@@ -1,15 +1,6 @@
-import json
-
-from aws_lambda_powertools.tracing import Tracer
-from aws_lambda_powertools.logging import Logger
 from requests.adapters import HTTPAdapter
-from requests.auth import HTTPBasicAuth
 from requests.packages.urllib3.util.retry import Retry
 import requests
-
-
-tracer = Tracer()
-logger = Logger()
 
 
 class VeriCall:
@@ -40,15 +31,12 @@ class VeriCall:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("https://", adapter)
 
-    @tracer.capture_method
     def request(self, payload: dict):
         resp = self.session.post(self.url, json=payload, timeout=self.timeout)
         resp.raise_for_status()
         return resp.json()
 
 
-@tracer.capture_method
 def score(vericall: VeriCall, payload: dict):
-    logger.info(f"scoring {payload['meta']['ContactId']}")
     resp = vericall.request(payload=payload)
     return resp

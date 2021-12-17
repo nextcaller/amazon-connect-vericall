@@ -1,13 +1,6 @@
 import os
-import json
-
-from aws_lambda_powertools.tracing import Tracer
-from aws_lambda_powertools.logging import Logger
 
 import vericall
-
-tracer = Tracer()
-logger = Logger()
 
 host = os.environ["API_ENDPOINT"]
 username = os.environ["USERNAME"]
@@ -16,7 +9,6 @@ password = os.environ["PASSWORD"]
 VeriCall = vericall.VeriCall(host=host, username=username, password=password)
 
 
-@tracer.capture_lambda_handler
 def handler(event, context):
     contact_data = event["Details"].get("ContactData", {})
     parameters = event["Details"].get("Parameters", {})
@@ -42,7 +34,6 @@ def handler(event, context):
     dnis = contact_data["SystemEndpoint"]["Address"]
 
     payload = {"ani": ani, "dnis": dnis, "headers": sip_data, "meta": meta}
-    logger.info(f"ContactId: {contact_id}")
     data = vericall.score(VeriCall, payload)
 
     # https://docs.aws.amazon.com/connect/latest/adminguide/connect-lambda-functions.html
