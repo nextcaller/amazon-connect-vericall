@@ -32,9 +32,17 @@
       }
     },
     "Parameters": {
-      "P-Charge-Info": null,
+      "Call-Forwarding-Indicator": null,
+      "Called-Party-Address": null,
+      "Calling-Party-Address": null,
       "From": null,
+      "Hop-Counter": null,
+      "I-SUP-OLI": null,
+      "JIP": null,
+      "Originating-Switch": null,
+      "Originating-Trunk": null,
       "P-Asserted-Identity": null,
+      "P-Charge-Info": null,
       "To": null
     }
   }

@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Next Caller VeriCall Lambda Function for Amazon Connect
+Parameters:
+  LogRetentionInDays:
+    Type: Number
+    Description: Number of days to retain the CloudWatch logs
+    Default: 3
+  APIHost:
+    Type: String
+    Description: VeriCall API Endpoint
+    Default: api-pre.vc.nextcaller.com
+  APIUsername:
+    Type: String
+    Description: Username for Next Caller's VeriCall API
+  APIPassword:
+    Type: String
+    Description: Password for Next Caller's VeriCall API
+    NoEcho: true
+  ConnectInstanceId:
+    Type: String
+    Description: Amazon Connect Instance ARN
+Globals:
+  Function:
+    Runtime: python3.9
+    Tracing: Active
+Resources:
+  VeriCallFunctionLog:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${VeriCallFunction}
+      RetentionInDays:
+        Ref: LogRetentionInDays
+  VeriCallFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: 'Use Next Caller''s VeriCall API to obtain a risk score for a call.
+
+        '
+      Handler: main.handler
+      CodeUri: s3://dev-public-code-assets-web/amazon-connect/vericall/5a5a39d639cd5db7735f0c171257f4df
+      MemorySize: 128
+      Timeout: 7
+      Policies:
+      - AWSLambdaExecute
+      Environment:
+        Variables:
+          API_ENDPOINT:
+            Ref: APIHost
+          USERNAME:
+            Ref: APIUsername
+          PASSWORD:
+            Ref: APIPassword
+  VeriCallContactFlow:
+    Type: AWS::Connect::ContactFlowModule
+    Properties:
+      Content:
+        Fn::Sub:
+        - "{\n  \"Version\": \"2019-10-30\",\n  \"StartAction\": \"${StartAction}\"\
+          ,\n  \"Metadata\": {\n    \"entryPointPosition\": {\n      \"x\": 20,\n\
+          \      \"y\": 20\n    },\n    \"snapToGrid\": false,\n    \"ActionMetadata\"\
+          : {\n      \"${StartAction}\": {\n        \"position\": {\n          \"\
+          x\": 180,\n          \"y\": 82\n        },\n        \"dynamicMetadata\"\
+          : {\n          \"P-Asserted-Identity\": false,\n          \"P-Charge-Info\"\
+          : false,\n          \"From\": false,\n          \"To\": false,\n       \
+          \   \"I-SUP-OLI\": false,\n          \"JIP\": false,\n          \"Hop-Counter\"\
+          : false,\n          \"Originating-Switch\": false,\n          \"Originating-Trunk\"\
+          : false,\n          \"Call-Forwarding-Indicator\": false,\n          \"\
+          Calling-Party-Address\": false,\n          \"Called-Party-Address\": false\n\
+          \        },\n        \"useDynamic\": false\n      },\n      \"${ActionIdPrefix}-5fe9c8f6a80a\"\
+          : {\n        \"position\": {\n          \"x\": 463,\n          \"y\": 138\n\
+          \        },\n        \"dynamicParams\": []\n      },\n      \"${ActionIdPrefix}-e981dc65f3b4\"\
+          : {\n        \"position\": {\n          \"x\": 961,\n          \"y\": 224\n\
+          \        }\n      },\n      \"${ActionIdPrefix}-a9cefe44ebd7\": {\n    \
+          \    \"position\": {\n          \"x\": 717,\n          \"y\": 264\n    \
+          \    },\n        \"useDynamic\": false\n      },\n      \"${ActionIdPrefix}-ced306de72ce\"\
+          : {\n        \"position\": {\n          \"x\": 963,\n          \"y\": 351\n\
+          \        }\n      }\n    }\n  },\n  \"Actions\": [\n    {\n      \"Identifier\"\
+          : \"${StartAction}\",\n      \"Parameters\": {\n        \"LambdaFunctionARN\"\
+          : \"${VeriCallFunction.Arn}\",\n        \"InvocationTimeLimitSeconds\":\
+          \ \"3\",\n        \"LambdaInvocationAttributes\": {\n          \"P-Asserted-Identity\"\
+          : \"$.Media.Sip.Headers.P-Asserted-Identity\",\n          \"JIP\": \"$.Media.Sip.Headers.JIP\"\
+          ,\n          \"Originating-Trunk\": \"$.Media.Sip.Headers.Originating-Trunk\"\
+          ,\n          \"P-Charge-Info\": \"$.Media.Sip.Headers.P-Charge-Info\",\n\
+          \          \"Calling-Party-Address\": \"$.Media.Sip.Headers.Calling-Party-Address\"\
+          ,\n          \"Called-Party-Address\": \"$.Media.Sip.Headers.Called-Party-Address\"\
+          ,\n          \"Hop-Counter\": \"$.Media.Sip.Headers.Hop-Counter\",\n   \
+          \       \"From\": \"$.Media.Sip.Headers.From\",\n          \"To\": \"$.Media.Sip.Headers.To\"\
+          ,\n          \"Originating-Switch\": \"$.Media.Sip.Headers.Originating-Switch\"\
+          ,\n          \"Call-Forwarding-Indicator\": \"$.Media.Sip.Headers.Call-Forwarding-Indicator\"\
+          ,\n          \"I-SUP-OLI\": \"$.Media.Sip.Headers.ISUP-OLI\"\n        }\n\
+          \      },\n      \"Transitions\": {\n        \"NextAction\": \"${ActionIdPrefix}-5fe9c8f6a80a\"\
+          ,\n        \"Errors\": [\n          {\n            \"NextAction\": \"${ActionIdPrefix}-a9cefe44ebd7\"\
+          ,\n            \"ErrorType\": \"NoMatchingError\"\n          }\n       \
+          \ ],\n        \"Conditions\": []\n      },\n      \"Type\": \"InvokeLambdaFunction\"\
+          \n    },\n    {\n      \"Identifier\": \"${ActionIdPrefix}-5fe9c8f6a80a\"\
+          ,\n      \"Parameters\": {\n        \"Attributes\": {\n          \"vericall_pin_score\"\
+          : \"$.External.pin_score\",\n          \"vericall_risk_score\": \"$.External.risk_score\"\
+          \n        }\n      },\n      \"Transitions\": {\n        \"NextAction\"\
+          : \"${ActionIdPrefix}-e981dc65f3b4\",\n        \"Errors\": [\n         \
+          \ {\n            \"NextAction\": \"${ActionIdPrefix}-a9cefe44ebd7\",\n \
+          \           \"ErrorType\": \"NoMatchingError\"\n          }\n        ],\n\
+          \        \"Conditions\": []\n      },\n      \"Type\": \"UpdateContactAttributes\"\
+          \n    },\n    {\n      \"Identifier\": \"${ActionIdPrefix}-e981dc65f3b4\"\
+          ,\n      \"Parameters\": {},\n      \"Transitions\": {},\n      \"Type\"\
+          : \"EndFlowModuleExecution\"\n    },\n    {\n      \"Identifier\": \"${ActionIdPrefix}-a9cefe44ebd7\"\
+          ,\n      \"Parameters\": {\n        \"Text\": \"An error occurred processing\
+          \ your request. Please try your call again later.\"\n      },\n      \"\
+          Transitions\": {\n        \"NextAction\": \"${ActionIdPrefix}-ced306de72ce\"\
+          ,\n        \"Errors\": [],\n        \"Conditions\": []\n      },\n     \
+          \ \"Type\": \"MessageParticipant\"\n    },\n    {\n      \"Identifier\"\
+          : \"${ActionIdPrefix}-ced306de72ce\",\n      \"Type\": \"DisconnectParticipant\"\
+          ,\n      \"Parameters\": {},\n      \"Transitions\": {}\n    }\n  ],\n \
+          \ \"Settings\": {\n    \"InputParameters\": [],\n    \"OutputParameters\"\
+          : [],\n    \"Transitions\": [\n      {\n        \"DisplayName\": \"Success\"\
+          ,\n        \"ReferenceName\": \"Success\",\n        \"Description\": \"\"\
+          \n      },\n      {\n        \"DisplayName\": \"Error\",\n        \"ReferenceName\"\
+          : \"Error\",\n        \"Description\": \"\"\n      }\n    ]\n  }\n}\n"
+        - StartAction:
+            Fn::Select:
+            - 2
+            - Fn::Split:
+              - /
+              - Ref: AWS::StackId
+          ActionIdPrefix:
+            Fn::Join:
+            - '-'
+            - - Fn::Select:
+                - 0
+                - Fn::Split:
+                  - '-'
+                  - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                      - /
+                      - Ref: AWS::StackId
+              - Fn::Select:
+                - 1
+                - Fn::Split:
+                  - '-'
+                  - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                      - /
+                      - Ref: AWS::StackId
+              - Fn::Select:
+                - 2
+                - Fn::Split:
+                  - '-'
+                  - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                      - /
+                      - Ref: AWS::StackId
+              - Fn::Select:
+                - 3
+                - Fn::Split:
+                  - '-'
+                  - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                      - /
+                      - Ref: AWS::StackId
+      Description: Invokes Next Caller's VeriCall API for caller authentication
+      InstanceArn:
+        Fn::Sub: arn:aws:connect:${AWS::Region}:${AWS::AccountId}:instance/${ConnectInstanceId}
+      Name: Next Caller VeriCall Caller Authentication
+      State: ACTIVE
