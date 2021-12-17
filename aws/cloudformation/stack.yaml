@@ -3,11 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: Next Caller VeriCall Lambda Function for Amazon Connect
 
 Parameters:
-  LogLevel:
-    Type: String
-    Description: Lambda function log level.
-    AllowedValues: ["INFO", "DEBUG", "WARN", "CRITICAL", "ERROR"]
-    Default: "INFO"
   LogRetentionInDays:
     Type: Number
     Description: Number of days to retain the CloudWatch logs
@@ -74,44 +69,56 @@ Resources:
                 },
                 "snapToGrid": false,
                 "ActionMetadata": {
-                  "${ActionIdPrefix}-e981dc65f3b4": {
-                    "position": {
-                      "x": 600,
-                      "y": 264
-                    }
-                  },
                   "${StartAction}": {
                     "position": {
-                      "x": 205,
-                      "y": 181
+                      "x": 180,
+                      "y": 82
                     },
                     "dynamicMetadata": {
-                      "paid": false
+                      "P-Asserted-Identity": false,
+                      "P-Charge-Info": false,
+                      "From": false,
+                      "To": false,
+                      "I-SUP-OLI": false,
+                      "JIP": false,
+                      "Hop-Counter": false,
+                      "Originating-Switch": false,
+                      "Originating-Trunk": false,
+                      "Call-Forwarding-Indicator": false,
+                      "Calling-Party-Address": false,
+                      "Called-Party-Address": false
                     },
                     "useDynamic": false
                   },
+                  "${ActionIdPrefix}-5fe9c8f6a80a": {
+                    "position": {
+                      "x": 463,
+                      "y": 138
+                    },
+                    "dynamicParams": []
+                  },
+                  "${ActionIdPrefix}-e981dc65f3b4": {
+                    "position": {
+                      "x": 961,
+                      "y": 224
+                    }
+                  },
                   "${ActionIdPrefix}-a9cefe44ebd7": {
                     "position": {
-                      "x": 429,
-                      "y": 389
+                      "x": 717,
+                      "y": 264
                     },
                     "useDynamic": false
                   },
                   "${ActionIdPrefix}-ced306de72ce": {
                     "position": {
-                      "x": 658,
-                      "y": 472
+                      "x": 963,
+                      "y": 351
                     }
                   }
                 }
               },
               "Actions": [
-                {
-                  "Identifier": "${ActionIdPrefix}-e981dc65f3b4",
-                  "Parameters": {},
-                  "Transitions": {},
-                  "Type": "EndFlowModuleExecution"
-                },
                 {
                   "Identifier": "${StartAction}",
                   "Parameters": {
@@ -119,17 +126,37 @@ Resources:
                     "InvocationTimeLimitSeconds": "3",
                     "LambdaInvocationAttributes": {
                       "P-Asserted-Identity": "$.Media.Sip.Headers.P-Asserted-Identity",
+                      "JIP": "$.Media.Sip.Headers.JIP",
+                      "Originating-Trunk": "$.Media.Sip.Headers.Originating-Trunk",
                       "P-Charge-Info": "$.Media.Sip.Headers.P-Charge-Info",
+                      "Calling-Party-Address": "$.Media.Sip.Headers.Calling-Party-Address",
+                      "Called-Party-Address": "$.Media.Sip.Headers.Called-Party-Address",
+                      "Hop-Counter": "$.Media.Sip.Headers.Hop-Counter",
                       "From": "$.Media.Sip.Headers.From",
                       "To": "$.Media.Sip.Headers.To",
-                      "I-SUP-OLI": "$.Media.Sip.Headers.ISUP-OLI",
-                      "JIP": "$.Media.Sip.Headers.JIP",
-                      "Hop-Counter": "$.Media.Sip.Headers.Hop-Counter",
                       "Originating-Switch": "$.Media.Sip.Headers.Originating-Switch",
-                      "Originating-Trunk": "$.Media.Sip.Headers.Originating-Trunk",
                       "Call-Forwarding-Indicator": "$.Media.Sip.Headers.Call-Forwarding-Indicator",
-                      "Calling-Party-Address": "$.Media.Sip.Headers.Calling-Party-Address",
-                      "Called-Party-Address": "$.Media.Sip.Headers.Called-Party-Address"
+                      "I-SUP-OLI": "$.Media.Sip.Headers.ISUP-OLI"
+                    }
+                  },
+                  "Transitions": {
+                    "NextAction": "${ActionIdPrefix}-5fe9c8f6a80a",
+                    "Errors": [
+                      {
+                        "NextAction": "${ActionIdPrefix}-a9cefe44ebd7",
+                        "ErrorType": "NoMatchingError"
+                      }
+                    ],
+                    "Conditions": []
+                  },
+                  "Type": "InvokeLambdaFunction"
+                },
+                {
+                  "Identifier": "${ActionIdPrefix}-5fe9c8f6a80a",
+                  "Parameters": {
+                    "Attributes": {
+                      "vericall_pin_score": "$.External.pin_score",
+                      "vericall_risk_score": "$.External.risk_score"
                     }
                   },
                   "Transitions": {
@@ -142,7 +169,13 @@ Resources:
                     ],
                     "Conditions": []
                   },
-                  "Type": "InvokeLambdaFunction"
+                  "Type": "UpdateContactAttributes"
+                },
+                {
+                  "Identifier": "${ActionIdPrefix}-e981dc65f3b4",
+                  "Parameters": {},
+                  "Transitions": {},
+                  "Type": "EndFlowModuleExecution"
                 },
                 {
                   "Identifier": "${ActionIdPrefix}-a9cefe44ebd7",
