@@ -23,28 +23,31 @@ Parameters:
     Type: String
     Description: Password for Next Caller's VeriCall API
     NoEcho: true
+  ConnectInstanceId:
+    Type: String
+    Description: Amazon Connect Instance ARN
 
 Globals:
   Function:
-    Runtime: python3.7
+    Runtime: python3.9
     Tracing: Active
 
 
 Resources:
-  FunctionLog:
+  VeriCallFunctionLog:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${Function}"
+      LogGroupName: !Sub "/aws/lambda/${VeriCallFunction}"
       RetentionInDays: !Ref LogRetentionInDays
 
 
-  Function:
+  VeriCallFunction:
     Type: AWS::Serverless::Function
     Properties:
       Description: |
         Use Next Caller's VeriCall API to obtain a risk score for a call.
       Handler: main.handler
-      CodeUri: ../src/
+      CodeUri: ../../app
       MemorySize: 128
       Timeout: 7
       Policies:
@@ -56,3 +59,139 @@ Resources:
           PASSWORD: !Ref APIPassword
           POWERTOOLS_LOGGER_LOG_EVENT: "true"
           LOG_LEVEL: !Ref LogLevel
+
+  VeriCallContactFlow:
+    Type: AWS::Connect::ContactFlowModule
+    # https://docs.aws.amazon.com/connect/latest/adminguide/flow-language-example.html
+    Properties:
+      Content: !Sub
+        - |
+            {
+              "Version": "2019-10-30",
+              "StartAction": "${StartAction}",
+              "Metadata": {
+                "entryPointPosition": {
+                  "x": 20,
+                  "y": 20
+                },
+                "snapToGrid": false,
+                "ActionMetadata": {
+                  "${ActionIdPrefix}-e981dc65f3b4": {
+                    "position": {
+                      "x": 600,
+                      "y": 264
+                    }
+                  },
+                  "${StartAction}": {
+                    "position": {
+                      "x": 205,
+                      "y": 181
+                    },
+                    "dynamicMetadata": {
+                      "paid": false
+                    },
+                    "useDynamic": false
+                  },
+                  "${ActionIdPrefix}-a9cefe44ebd7": {
+                    "position": {
+                      "x": 429,
+                      "y": 389
+                    },
+                    "useDynamic": false
+                  },
+                  "${ActionIdPrefix}-ced306de72ce": {
+                    "position": {
+                      "x": 658,
+                      "y": 472
+                    }
+                  }
+                }
+              },
+              "Actions": [
+                {
+                  "Identifier": "${ActionIdPrefix}-e981dc65f3b4",
+                  "Parameters": {},
+                  "Transitions": {},
+                  "Type": "EndFlowModuleExecution"
+                },
+                {
+                  "Identifier": "${StartAction}",
+                  "Parameters": {
+                    "LambdaFunctionARN": "${VeriCallFunction.Arn}",
+                    "InvocationTimeLimitSeconds": "3",
+                    "LambdaInvocationAttributes": {
+                      "P-Asserted-Identity": "$.Media.Sip.Headers.P-Asserted-Identity",
+                      "P-Charge-Info": "$.Media.Sip.Headers.P-Charge-Info",
+                      "From": "$.Media.Sip.Headers.From",
+                      "To": "$.Media.Sip.Headers.To",
+                      "I-SUP-OLI": "$.Media.Sip.Headers.ISUP-OLI",
+                      "JIP": "$.Media.Sip.Headers.JIP",
+                      "Hop-Counter": "$.Media.Sip.Headers.Hop-Counter",
+                      "Originating-Switch": "$.Media.Sip.Headers.Originating-Switch",
+                      "Originating-Trunk": "$.Media.Sip.Headers.Originating-Trunk",
+                      "Call-Forwarding-Indicator": "$.Media.Sip.Headers.Call-Forwarding-Indicator",
+                      "Calling-Party-Address": "$.Media.Sip.Headers.Calling-Party-Address",
+                      "Called-Party-Address": "$.Media.Sip.Headers.Called-Party-Address"
+                    }
+                  },
+                  "Transitions": {
+                    "NextAction": "${ActionIdPrefix}-e981dc65f3b4",
+                    "Errors": [
+                      {
+                        "NextAction": "${ActionIdPrefix}-a9cefe44ebd7",
+                        "ErrorType": "NoMatchingError"
+                      }
+                    ],
+                    "Conditions": []
+                  },
+                  "Type": "InvokeLambdaFunction"
+                },
+                {
+                  "Identifier": "${ActionIdPrefix}-a9cefe44ebd7",
+                  "Parameters": {
+                    "Text": "An error occurred processing your request. Please try your call again later."
+                  },
+                  "Transitions": {
+                    "NextAction": "${ActionIdPrefix}-ced306de72ce",
+                    "Errors": [],
+                    "Conditions": []
+                  },
+                  "Type": "MessageParticipant"
+                },
+                {
+                  "Identifier": "${ActionIdPrefix}-ced306de72ce",
+                  "Type": "DisconnectParticipant",
+                  "Parameters": {},
+                  "Transitions": {}
+                }
+              ],
+              "Settings": {
+                "InputParameters": [],
+                "OutputParameters": [],
+                "Transitions": [
+                  {
+                    "DisplayName": "Success",
+                    "ReferenceName": "Success",
+                    "Description": ""
+                  },
+                  {
+                    "DisplayName": "Error",
+                    "ReferenceName": "Error",
+                    "Description": ""
+                  }
+                ]
+              }
+            }
+        - StartAction: !Select [2, !Split ["/", !Ref AWS::StackId]]
+          ActionIdPrefix: !Join
+            - "-"
+            -
+              - !Select [0, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]]
+              - !Select [1, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]]
+              - !Select [2, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]]
+              - !Select [3, !Split ["-", !Select [2, !Split ["/", !Ref AWS::StackId]]]]
+
+      Description: Invokes Next Caller's VeriCall API for caller authentication
+      InstanceArn: !Sub "arn:aws:connect:${AWS::Region}:${AWS::AccountId}:instance/${ConnectInstanceId}"
+      Name: Next Caller VeriCall Caller Authentication
+      State: ACTIVE
