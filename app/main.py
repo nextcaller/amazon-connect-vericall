@@ -41,13 +41,15 @@ def handler(event, context):
     # pairs, with values that include only alphanumeric, dash, and underscore
     # characters. Nested and complex objects are not supported.
     # The size of the returned data must be less than 32 Kb of UTF-8 data.
-    logger.debug(data)
     if "reason_codes" in data:
         reason_codes = data.pop("reason_codes")
         data["reason_codes"] = "|".join(reason_codes)
     if "reputation_categories" in data:
         reputation_categories = data.pop("reputation_categories")
         data["reputation_categories"] = "|".join(reputation_categories)
+    if "pin_score" in data:
+        pin_score = data.pop("pin_score")
+        data["pin_score"] = pin_score.get("value")
     data["data_source"] = "vericall"
 
     return data
