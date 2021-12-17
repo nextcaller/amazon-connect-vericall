@@ -57,8 +57,6 @@ Resources:
           API_ENDPOINT: !Ref APIHost
           USERNAME: !Ref APIUsername
           PASSWORD: !Ref APIPassword
-          POWERTOOLS_LOGGER_LOG_EVENT: "true"
-          LOG_LEVEL: !Ref LogLevel
 
   VeriCallContactFlow:
     Type: AWS::Connect::ContactFlowModule
