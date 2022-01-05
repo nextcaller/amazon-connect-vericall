@@ -18,6 +18,32 @@ You'll need the following information:
 * VeriCall Password
 * Amazon Connect Instance ID
 
+### AWS Permissions
+
+In addition to The CloudFormation template that is deployed via either option below will require the following IAM permissions:
+
+* AWS::Connect::ContactFlowModule
+* AWS::IAM::Role
+* AWS::Lambda::Function
+* AWS::Logs::LogGroup
+
+Additionally, you will need permissions to create a CloudFormation stack when using CloudFormation.
+
+#### AWS::Connect::ContactFlowModule
+This will create a Contact Flow Module such that it can be dropped into any existing Amazon Connect ContactFlow for ease of use. The Contact Flow Module invokes the VeriCall Lambda function with the required parameters and stores the risk score and pin score as Contact Attributes.
+
+#### AWS::IAM::Role
+This creates the IAM role that will be used by the Lambda function. The IAM role is using the 3 AWS managed policies:
+* AWSXrayWriteOnlyAccess
+* AWSLambdaExecute
+* AWSLambdaBasicExecutionRole
+
+#### AWS::Lambda::Function
+This is the main AWS Lambda function that invokes the VeriCall API.
+
+#### AWS::Logs::LogGroup
+This creates a CloudWatch Log Group to collect log information for the Lambda function. This is an optional resource as without it the Lambda function will automatically create a LogGroup at first invocation.
+
 ### Option 1 (GUI):
 
 1. Upload `template.yaml` in your CloudFormation console and follow the prompts.
