@@ -58,7 +58,15 @@ Use `sam` to build, invoke and deploy the function.
 `sam build -b build -t aws/cloudformation/stack.yaml --use-container`
 3. In your Amazon account create an S3 bucket to upload the code to (you can use an existing one you have read/write access to).
 4. Use `sam deploy` to deploy the application (remember to replace the `REPLACE_ME` with your information specific information): 
-`sam deploy -t build/template.yaml --s3-bucket REPLACE_ME --stack-name REPLACE_ME --parameter-overrides ParameterKey=LogLevel,ParameterValue=INFO ParameterKey=APIUsername,ParameterValue=REPLACE_ME ParameterKey=APIPassword,ParameterValue=REPLACE_ME --capabilities CAPABILITY_IAM`
+```
+sam deploy -t build/template.yaml --s3-bucket REPLACE_ME1 \
+  --stack-name REPLACE_ME2  \
+  --parameter-overrides \
+    ParameterKey=ConnectInstanceId,ParameterValue=REPLACE_ME3 \
+    ParameterKey=APIUsername,ParameterValue=REPLACE_ME4 \
+    ParameterKey=APIPassword,ParameterValue=REPLACE_ME5 \
+  --capabilities CAPABILITY_IAM
+```
 5. Enable the AWS Lambda function in your Amazon Connect instance (Amazon Connect Instance --> Contact Flows --> AWS Lambda)
 
 ## Connect Integration
