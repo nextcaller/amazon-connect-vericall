@@ -55,7 +55,7 @@ Use `sam` to build, invoke and deploy the function.
 
 1. Download and setup SAM: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html
 2. Use `sam build` to build the application: 
-`sam build -b build -t aws/cloudformation/stack.yaml --use-container`
+`sam build -b build -t aws/cloudformation/stack.yaml`
 3. In your Amazon account create an S3 bucket to upload the code to (you can use an existing one you have read/write access to).
 4. Use `sam deploy` to deploy the application (remember to replace the `REPLACE_ME` with your information specific information): 
 ```
