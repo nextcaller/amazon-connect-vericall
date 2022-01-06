@@ -20,7 +20,7 @@ You'll need the following information:
 
 ### AWS Permissions
 
-In addition to The CloudFormation template that is deployed via either option below will require the following IAM permissions:
+The CloudFormation template that is deployed via either option below will require the following IAM permissions:
 
 * AWS::Connect::ContactFlowModule
 * AWS::IAM::Role
