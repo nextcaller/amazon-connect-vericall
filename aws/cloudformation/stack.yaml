@@ -20,7 +20,7 @@ Parameters:
     NoEcho: true
   ConnectInstanceId:
     Type: String
-    Description: Amazon Connect Instance ARN
+    Description: Amazon Connect Instance ID
 
 Globals:
   Function:
