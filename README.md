@@ -8,7 +8,7 @@ If you'd like to use the Next Caller VeriCall API please reach out to us at [htt
 
 ## Official API Documentation
 
-Documentation for the Next Caller VeriCall API can be found at: [https://docs.nextcaller.com/vericall](https://docs.nextcaller.com/vericall/index.html)
+Documentation for the Next Caller VeriCall API can be found at: [https://docs.nextcaller.com/vericallv2/index.html](https://docs.nextcaller.com/vericallv2/index.html)
 
 ## Usage
 
