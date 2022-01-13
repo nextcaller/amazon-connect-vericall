@@ -39,7 +39,7 @@ Resources:
 
         '
       Handler: main.handler
-      CodeUri: s3://dev-public-code-assets-web/amazon-connect/vericall/5a5a39d639cd5db7735f0c171257f4df
+      CodeUri: s3://dev-public-code-assets-web/amazon-connect/vericall/a955ba0c1429582e6b6b26926d90da8c
       MemorySize: 128
       Timeout: 7
       Policies:
