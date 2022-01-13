@@ -27,6 +27,7 @@ def handler(event, context):
         "X-CALL-FWD-I": parameters.get("Call-Forwarding-Indicator") or None,
         "X-ORIG-CGPN": parameters.get("Calling-Party-Address") or None,
         "X-ORIG-CDPN": parameters.get("Called-Party-Address") or None,
+        "Call-ID": contact_id,
     }
 
     meta = {"ContactId": contact_id}
