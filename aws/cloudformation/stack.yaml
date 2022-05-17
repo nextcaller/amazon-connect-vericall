@@ -156,7 +156,8 @@ Resources:
                   "Parameters": {
                     "Attributes": {
                       "vericall_pin_score": "$.External.pin_score",
-                      "vericall_risk_score": "$.External.risk_score"
+                      "vericall_risk_score": "$.External.risk_score",
+                      "vericall_pin_reasons": "$.External.pin_reasons"
                     }
                   },
                   "Transitions": {

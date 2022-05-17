@@ -39,7 +39,7 @@ Resources:
 
         '
       Handler: main.handler
-      CodeUri: s3://dev-public-code-assets-web/amazon-connect/vericall/a955ba0c1429582e6b6b26926d90da8c
+      CodeUri: s3://dev-public-code-assets-web/amazon-connect/vericall/71c604aed1eeeb12de5ae9ba6ac9455c
       MemorySize: 128
       Timeout: 7
       Policies:
@@ -97,11 +97,11 @@ Resources:
           \n    },\n    {\n      \"Identifier\": \"${ActionIdPrefix}-5fe9c8f6a80a\"\
           ,\n      \"Parameters\": {\n        \"Attributes\": {\n          \"vericall_pin_score\"\
           : \"$.External.pin_score\",\n          \"vericall_risk_score\": \"$.External.risk_score\"\
-          \n        }\n      },\n      \"Transitions\": {\n        \"NextAction\"\
-          : \"${ActionIdPrefix}-e981dc65f3b4\",\n        \"Errors\": [\n         \
-          \ {\n            \"NextAction\": \"${ActionIdPrefix}-a9cefe44ebd7\",\n \
-          \           \"ErrorType\": \"NoMatchingError\"\n          }\n        ],\n\
-          \        \"Conditions\": []\n      },\n      \"Type\": \"UpdateContactAttributes\"\
+          ,\n          \"vericall_pin_reasons\": \"$.External.pin_reasons\"\n    \
+          \    }\n      },\n      \"Transitions\": {\n        \"NextAction\": \"${ActionIdPrefix}-e981dc65f3b4\"\
+          ,\n        \"Errors\": [\n          {\n            \"NextAction\": \"${ActionIdPrefix}-a9cefe44ebd7\"\
+          ,\n            \"ErrorType\": \"NoMatchingError\"\n          }\n       \
+          \ ],\n        \"Conditions\": []\n      },\n      \"Type\": \"UpdateContactAttributes\"\
           \n    },\n    {\n      \"Identifier\": \"${ActionIdPrefix}-e981dc65f3b4\"\
           ,\n      \"Parameters\": {},\n      \"Transitions\": {},\n      \"Type\"\
           : \"EndFlowModuleExecution\"\n    },\n    {\n      \"Identifier\": \"${ActionIdPrefix}-a9cefe44ebd7\"\
