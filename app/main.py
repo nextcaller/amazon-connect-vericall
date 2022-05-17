@@ -51,6 +51,8 @@ def handler(event, context):
     if "pin_score" in data:
         pin_score = data.pop("pin_score")
         data["pin_score"] = pin_score.get("value")
+        pin_reasons = pin_score.get("reasons")
+        data["pin_reasons"] = "|".join(pin_reasons)
     data["data_source"] = "vericall"
 
     return data
